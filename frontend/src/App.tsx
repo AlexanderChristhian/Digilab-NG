@@ -33,7 +33,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-secondary-50 dark:bg-gradient-to-br dark:from-slate-900 dark:to-zinc-900 dark:text-dark-text transition-colors duration-200">
             <Navbar />
-            <main className="prevent-scroll-reset">
+            <main className="prevent-scroll-reset page-enter-active">
               <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<Login />} />

@@ -213,14 +213,14 @@ const Dashboard = () => {
         {enrolledClasses.length === 0 ? (
           <div className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow p-6 text-center">
             <p className="text-secondary-600 dark:text-dark-muted">You are not enrolled in any classes</p>
-            <Link to="/classes/browse" className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700">
+            <Link to="/classes/browse" className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 btn-hover">
               Browse Classes
             </Link>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {enrolledClasses.map((classItem) => (
-              <div key={classItem.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden">
+              <div key={classItem.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden card-hover">
                 {classItem.image_url ? (
                   <div className="h-48 w-full overflow-hidden">
                     <img

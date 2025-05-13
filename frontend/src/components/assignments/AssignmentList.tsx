@@ -58,7 +58,7 @@ const AssignmentList = () => {
 
   // Sort assignments by deadline (upcoming first)
   Object.values(assignmentsByClass).forEach(classGroup => {
-    classGroup.assignments.sort((a, b) => 
+    classGroup.assignments.sort((a, b) =>
       new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
     );
   });
@@ -120,7 +120,7 @@ const AssignmentList = () => {
       ) : (
         <div className="space-y-8">
           {Object.values(assignmentsByClass).map(classGroup => (
-            <div key={classGroup.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden">
+            <div key={classGroup.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden card-hover">
               <div className="px-6 py-4 border-b border-secondary-200 dark:border-dark-border">
                 <h2 className="text-xl font-semibold text-secondary-900 dark:text-dark-text">{classGroup.title}</h2>
               </div>
@@ -139,8 +139,8 @@ const AssignmentList = () => {
                           </p>
                         </div>
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          isDeadlinePassed 
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' 
+                          isDeadlinePassed
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                             : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
                         }`}>
                           {isDeadlinePassed ? 'Deadline passed: ' : 'Due: '}
@@ -154,14 +154,14 @@ const AssignmentList = () => {
                         <div className="flex space-x-2">
                           <Link
                             to={`/assignments/${assignment.id}`}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-primary-300 dark:bg-primary-900/30 dark:hover:bg-primary-900/50"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-primary-700 bg-primary-100 hover:bg-primary-200 dark:text-primary-300 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 btn-hover"
                           >
                             View Details
                           </Link>
                           {user?.role === 'praktikan' && !isDeadlinePassed && (
                             <Link
                               to={`/assignments/${assignment.id}/submit`}
-                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700"
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-primary-600 hover:bg-primary-700 btn-hover"
                             >
                               Submit
                             </Link>

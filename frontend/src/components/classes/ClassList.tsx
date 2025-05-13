@@ -137,7 +137,7 @@ const ClassList = () => {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {classes.map((classItem) => (
-            <div key={classItem.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden">
+            <div key={classItem.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden card-hover">
               {classItem.image_url ? (
                 <div className="h-48 w-full overflow-hidden">
                   <img
