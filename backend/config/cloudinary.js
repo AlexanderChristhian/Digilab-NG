@@ -13,10 +13,10 @@ cloudinary.config({
 // Upload file to Cloudinary
 const uploadFile = async (file, folder = 'digilab') => {
   try {
-    // Determine if the file is a PDF
-    const isPDF = file.mimetype === 'application/pdf';
+    // Check if file is a string path or a file object
+    const isFilePath = typeof file === 'string';
 
-    // Set upload options with specific settings for PDFs
+    // Set upload options
     const uploadOptions = {
       folder: folder,
       resource_type: 'auto',
@@ -24,16 +24,25 @@ const uploadFile = async (file, folder = 'digilab') => {
       type: 'upload',        // Explicit upload type
     };
 
-    // Add specific options for PDFs
-    if (isPDF) {
-      uploadOptions.resource_type = 'raw';
-      uploadOptions.flags = 'attachment'; // Force as attachment to prevent ACL issues
+    // If file is an object with mimetype, check if it's a PDF
+    if (!isFilePath && file.mimetype) {
+      const isPDF = file.mimetype === 'application/pdf';
+
+      // Add specific options for PDFs
+      if (isPDF) {
+        uploadOptions.resource_type = 'raw';
+        uploadOptions.flags = 'attachment'; // Force as attachment to prevent ACL issues
+      }
     }
 
-    const result = await cloudinary.uploader.upload(file.path, uploadOptions);
+    // Use the file path directly if it's a string, otherwise use file.path
+    const filePath = isFilePath ? file : file.path;
+
+    const result = await cloudinary.uploader.upload(filePath, uploadOptions);
 
     return {
-      url: result.secure_url,
+      secure_url: result.secure_url,
+      url: result.url,
       public_id: result.public_id
     };
   } catch (error) {

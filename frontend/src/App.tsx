@@ -20,6 +20,7 @@ import ClassDetail from './components/classes/ClassDetail';
 import ClassForm from './components/classes/ClassForm';
 import ModuleDetail from './components/modules/ModuleDetail';
 import ModuleForm from './components/modules/ModuleForm';
+import Profile from './components/profile/Profile';
 
 function App() {
   // Disable scroll restoration from React Router
@@ -60,7 +61,7 @@ function App() {
                 {/* Protected routes requiring authentication */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<ComingSoon pageName="Profile" />} />
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="/social" element={<ComingSoon pageName="Social Feed" />} />
                 </Route>
 

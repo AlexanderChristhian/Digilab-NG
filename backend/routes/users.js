@@ -1,10 +1,17 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { authenticate, authorize, redisClient, JWT_SECRET } = require('../middleware/auth');
 const db = require('../db');
+const { uploadFile } = require('../config/cloudinary');
 
 const router = express.Router();
+
+// Configure multer for file uploads
+const upload = multer({ dest: 'uploads/' });
 
 // Register a new user
 router.post('/register', async (req, res) => {
@@ -153,7 +160,7 @@ router.post('/logout', authenticate, async (req, res) => {
 router.get('/me', authenticate, async (req, res) => {
   try {
     const result = await db.query(
-      'SELECT id, username, email, role, created_at FROM users WHERE id = $1',
+      'SELECT id, username, email, role, created_at, profile_image FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -165,6 +172,77 @@ router.get('/me', authenticate, async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Get user error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update user profile
+router.put('/profile', authenticate, upload.single('profileImage'), async (req, res) => {
+  try {
+    const { username } = req.body;
+    const userId = req.user.id;
+
+    // Validate username
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+
+    // Check if username is already taken by another user
+    const existingUser = await db.query(
+      'SELECT * FROM users WHERE username = $1 AND id != $2',
+      [username, userId]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ message: 'Username is already taken' });
+    }
+
+    let profileImageUrl = null;
+
+    // Upload profile image if provided
+    if (req.file) {
+      try {
+        // Upload to Cloudinary
+        const result = await uploadFile(req.file);
+        profileImageUrl = result.secure_url;
+
+        // Clean up the temporary file
+        fs.unlinkSync(req.file.path);
+      } catch (uploadError) {
+        console.error('Error uploading profile image:', uploadError);
+        return res.status(500).json({ message: 'Error uploading profile image' });
+      }
+    }
+
+    // Update user in database
+    let updateQuery, queryParams;
+
+    if (profileImageUrl) {
+      // Update both username and profile image
+      updateQuery = `
+        UPDATE users
+        SET username = $1, profile_image = $2, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $3
+        RETURNING id, username, email, role, created_at, profile_image
+      `;
+      queryParams = [username, profileImageUrl, userId];
+    } else {
+      // Update only username
+      updateQuery = `
+        UPDATE users
+        SET username = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
+        RETURNING id, username, email, role, created_at, profile_image
+      `;
+      queryParams = [username, userId];
+    }
+
+    const result = await db.query(updateQuery, queryParams);
+    const updatedUser = result.rows[0];
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

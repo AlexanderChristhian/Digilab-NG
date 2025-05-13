@@ -12,6 +12,7 @@ export interface User {
   email: string;
   role: 'aslab' | 'praktikan' | 'guest';
   created_at?: string;
+  profile_image?: string | null;
 }
 
 // Auth context interface
@@ -24,6 +25,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string, role: 'aslab' | 'praktikan') => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: User) => void;
   error: string | null;
   clearError: () => void;
 }
@@ -180,6 +182,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Clear error
   const clearError = () => setError(null);
 
+  // Update user data
+  const updateUser = (userData: User) => {
+    setUser(userData);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -191,6 +198,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         register,
         logout,
+        updateUser,
         error,
         clearError
       }}
