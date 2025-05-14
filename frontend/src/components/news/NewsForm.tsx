@@ -528,15 +528,15 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         )}
         
         <div className="mt-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-200 dark:border-blue-800">
-          <p className="text-xs text-blue-700 dark:text-blue-300">
+          <div className="text-xs text-blue-700 dark:text-blue-300">
             <span className="font-semibold block mb-1">Why link an announcement?</span>
             Linking this announcement to a {linkedType} will:
-            <ul className="list-disc list-inside ml-1 mt-1">
-              <li>Add a direct navigation button to the {linkedType}</li>
-              <li>Show this announcement on the {linkedType}'s page</li>
-              <li>Help users find related content more easily</li>
-            </ul>
-          </p>
+          </div>
+          <ul className="list-disc list-inside ml-1 mt-1 text-xs text-blue-700 dark:text-blue-300">
+            <li>Add a direct navigation button to the {linkedType}</li>
+            <li>Show this announcement on the {linkedType}'s page</li>
+            <li>Help users find related content more easily</li>
+          </ul>
         </div>
       </div>
     );
