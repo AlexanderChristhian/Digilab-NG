@@ -24,6 +24,8 @@ import Profile from './components/profile/Profile';
 import NewsList from './components/news/NewsList';
 import NewsDetail from './components/news/NewsDetail';
 import NewsForm from './components/news/NewsForm';
+import SocialPage from './components/social/SocialPage';
+import PostDetail from './components/social/PostDetail';
 
 function App() {
   // Disable scroll restoration from React Router
@@ -65,7 +67,8 @@ function App() {
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/social" element={<ComingSoon pageName="Social Feed" />} />
+                  <Route path="/social" element={<SocialPage />} />
+                  <Route path="/social/:id" element={<PostDetail />} />
                 </Route>
 
                 {/* Aslab-only routes */}
