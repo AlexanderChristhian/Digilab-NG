@@ -108,10 +108,12 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         if (moduleData.folder_id) {
           setSelectedFolderId(moduleData.folder_id.toString());
         }
+        console.log(`Fetched module details: class_id=${moduleData.class_id}, folder_id=${moduleData.folder_id}`);
       } else if (entityType === 'assignment') {
         response = await axios.get(`${API_URL}/assignments/${entityId}`);
         const assignmentData = response.data;
         setSelectedClassId(assignmentData.class_id.toString());
+        console.log(`Fetched assignment details: class_id=${assignmentData.class_id}`);
       }
     } catch (err) {
       console.error(`Error fetching ${entityType} details:`, err);
@@ -124,6 +126,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
       setInitialLoading(true);
       const response = await axios.get(`${API_URL}/news/${id}`);
       const newsData = response.data;
+      console.log("Fetched news data:", newsData);
 
       setTitle(newsData.title);
       setContent(newsData.content);
@@ -135,12 +138,15 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
 
       // Set linked entity if it exists
       if (newsData.linked_type) {
+        console.log(`News is linked to ${newsData.linked_type} with ID ${newsData.linked_id}`);
         setLinkedType(newsData.linked_type);
         setLinkedId(newsData.linked_id.toString());
         
         // If linked to module or assignment, fetch details for hierarchy
         if (newsData.linked_type === 'module' || newsData.linked_type === 'assignment') {
           await fetchEntityDetails(newsData.linked_type, newsData.linked_id.toString());
+        } else if (newsData.linked_type === 'class') {
+          setSelectedClassId(newsData.linked_id.toString());
         }
       }
 
@@ -234,11 +240,13 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
   // Handle class selection
   const handleClassChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newClassId = e.target.value;
+    console.log(`Selected class ID: ${newClassId}`);
     setSelectedClassId(newClassId);
     setSelectedFolderId('');
     
     if (linkedType === 'class') {
       setLinkedId(newClassId);
+      console.log(`Setting linkedId to ${newClassId} for class`);
     } else {
       setLinkedId(''); // Reset linked ID when changing class for module/assignment
     }
@@ -263,12 +271,15 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
   
   // Handle module selection through hierarchy
   const handleModuleSelection = (moduleId: string) => {
+    console.log(`Selected module ID: ${moduleId}`);
     setLinkedId(moduleId);
   };
   
   // Handle assignment selection
   const handleAssignmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLinkedId(e.target.value);
+    const assignmentId = e.target.value;
+    console.log(`Selected assignment ID: ${assignmentId}`);
+    setLinkedId(assignmentId);
   };
 
   // Handle image selection
@@ -327,16 +338,22 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
       formData.append('title', title.trim());
       formData.append('content', content.trim());
       if (image) formData.append('image', image);
-      if (linkedType) formData.append('linkedType', linkedType);
-      if (linkedId) formData.append('linkedId', linkedId);
+      
+      // Add entity linking information if provided
+      if (linkedType && linkedId) {
+        formData.append('linkedType', linkedType);
+        formData.append('linkedId', linkedId);
+        console.log(`Linking announcement to ${linkedType} with ID ${linkedId}`);
+      }
 
       if (isEditing && id) {
         // Update existing news
-        await axios.put(`${API_URL}/news/${id}`, formData, {
+        const response = await axios.put(`${API_URL}/news/${id}`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
+        console.log("Updated news response:", response.data);
         navigate(`/news/${id}`);
       } else {
         // Create new news
@@ -345,6 +362,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
             'Content-Type': 'multipart/form-data'
           }
         });
+        console.log("Created news response:", response.data);
         navigate(`/news/${response.data.id}`);
       }
     } catch (err: any) {
@@ -508,6 +526,18 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
             )}
           </div>
         )}
+        
+        <div className="mt-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-200 dark:border-blue-800">
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            <span className="font-semibold block mb-1">Why link an announcement?</span>
+            Linking this announcement to a {linkedType} will:
+            <ul className="list-disc list-inside ml-1 mt-1">
+              <li>Add a direct navigation button to the {linkedType}</li>
+              <li>Show this announcement on the {linkedType}'s page</li>
+              <li>Help users find related content more easily</li>
+            </ul>
+          </p>
+        </div>
       </div>
     );
   };

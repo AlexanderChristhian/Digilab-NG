@@ -46,6 +46,7 @@ const NewsDetail = () => {
         setError(null);
 
         const response = await axios.get(`${API_URL}/news/${id}`);
+        console.log('News data received:', response.data);  // Debug info
         setNews(response.data);
         setLoading(false);
       } catch (err) {
@@ -72,8 +73,23 @@ const NewsDetail = () => {
     }
   };
 
+  // Determine linked entity details with better debug logging
   const getLinkedEntityInfo = () => {
-    if (!news || !news.linked_type) return null;
+    if (!news || !news.linked_type) {
+      console.log("No linked entity found");
+      return null;
+    }
+    
+    console.log("Getting linked entity info:", {
+      type: news.linked_type,
+      id: news.linked_id,
+      classTitle: news.class_title,
+      classId: news.class_id,
+      moduleTitle: news.module_title,
+      moduleId: news.module_id,
+      assignmentTitle: news.assignment_title,
+      assignmentId: news.assignment_id
+    });
     
     let icon;
     let title = '';
@@ -82,43 +98,62 @@ const NewsDetail = () => {
     
     switch (news.linked_type) {
       case 'class':
-        if (!news.class_id || !news.class_title) return null;
+        if (!news.class_id || !news.class_title) {
+          console.log("Missing class details for linked entity");
+          return null;
+        }
         entityType = 'Class';
         title = news.class_title;
         url = `/classes/${news.class_id}`;
         icon = (
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-primary-500 dark:text-primary-400">
-            <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
-          </svg>
+          <div className="mr-3 p-2 bg-blue-100 dark:bg-blue-800/30 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-blue-600 dark:text-blue-400">
+              <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.949 49.949 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.009 50.009 0 007.5 12.174v-.224c0-.131.067-.248.172-.311a54.614 54.614 0 014.653-2.52.75.75 0 00-.65-1.352 56.129 56.129 0 00-4.78 2.589 1.858 1.858 0 00-.859 1.228 49.803 49.803 0 00-4.634-1.527.75.75 0 01-.231-1.337A60.653 60.653 0 0111.7 2.805z" />
+              <path d="M13.06 15.473a48.45 48.45 0 017.666-3.282c.134 1.414.22 2.843.255 4.285a.75.75 0 01-.46.71 47.878 47.878 0 00-8.105 4.342.75.75 0 01-.832 0 47.877 47.877 0 00-8.104-4.342.75.75 0 01-.461-.71c.035-1.442.121-2.87.255-4.286A48.4 48.4 0 016 13.18v1.27a1.5 1.5 0 00-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.661a6.729 6.729 0 00.551-1.608 1.5 1.5 0 00.14-2.67v-.645a48.549 48.549 0 013.44 1.668 2.25 2.25 0 002.12 0z" />
+              <path d="M4.462 19.462c.42-.419.753-.89 1-1.394.453.213.902.434 1.347.661a6.743 6.743 0 01-1.286 1.794.75.75 0 11-1.06-1.06z" />
+            </svg>
+          </div>
         );
         break;
       case 'module':
-        if (!news.module_id || !news.module_title) return null;
+        if (!news.module_id || !news.module_title) {
+          console.log("Missing module details for linked entity");
+          return null;
+        }
         entityType = 'Module';
         title = news.module_title;
         url = `/modules/${news.module_id}`;
         icon = (
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-primary-500 dark:text-primary-400">
-            <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
-          </svg>
+          <div className="mr-3 p-2 bg-green-100 dark:bg-green-800/30 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-green-600 dark:text-green-400">
+              <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
+            </svg>
+          </div>
         );
         break;
       case 'assignment':
-        if (!news.assignment_id || !news.assignment_title) return null;
+        if (!news.assignment_id || !news.assignment_title) {
+          console.log("Missing assignment details for linked entity");
+          return null;
+        }
         entityType = 'Assignment';
         title = news.assignment_title;
         url = `/assignments/${news.assignment_id}`;
         icon = (
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-primary-500 dark:text-primary-400">
-            <path fillRule="evenodd" d="M15.988 3.012A2.25 2.25 0 0118 5.25v6.5A2.25 2.25 0 0115.75 14H13.5v-3.379a3 3 0 00-.879-2.121l-3.12-3.121a3 3 0 00-1.402-.791 2.252 2.252 0 011.913-1.576A2.25 2.25 0 0112.25 1h1.5a2.25 2.25 0 012.238 2.012zM11.5 3.25a.75.75 0 01.75-.75h1.5a.75.75 0 01.75.75v.25h-3v-.25z" clipRule="evenodd" />
-            <path d="M3.5 6A1.5 1.5 0 002 7.5v9A1.5 1.5 0 003.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L8.44 6.439A1.5 1.5 0 007.378 6H3.5z" />
-          </svg>
+          <div className="mr-3 p-2 bg-orange-100 dark:bg-orange-800/30 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-orange-600 dark:text-orange-400">
+              <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
+              <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z" />
+            </svg>
+          </div>
         );
         break;
       default:
+        console.log(`Unknown linked_type: ${news.linked_type}`);
         return null;
     }
     
+    console.log("Linked entity info:", { entityType, title, url });
     return { icon, title, url, entityType };
   };
 
@@ -157,34 +192,6 @@ const NewsDetail = () => {
   }
 
   const canEdit = user && user.role === 'aslab';
-
-  // Add debug log to check linked entity data
-  console.log('Linked entity data:', {
-    type: news?.linked_type,
-    id: news?.linked_id,
-    classTitle: news?.class_title,
-    classId: news?.class_id,
-    moduleTitle: news?.module_title,
-    moduleId: news?.module_id,
-    assignmentTitle: news?.assignment_title,
-    assignmentId: news?.assignment_id
-  });
-
-  // Improve the linked entity detection and button display
-  const linkedEntity = news ? {
-    type: news.linked_type,
-    id: news.linked_id,
-    title: news.class_title || news.module_title || news.assignment_title || null,
-    url: news.class_id 
-      ? `/classes/${news.class_id}` 
-      : news.module_id 
-        ? `/modules/${news.module_id}` 
-        : news.assignment_id 
-          ? `/assignments/${news.assignment_id}` 
-          : null
-  } : { type: null, id: null, title: null, url: null };
-
-  console.log('Processed linked entity:', linkedEntity);
 
   return (
     <div className="container-custom py-8">
@@ -247,62 +254,38 @@ const NewsDetail = () => {
             )}
           </div>
           
-          {/* Linked entity section - Enhanced version with more prominent button */}
-          {linkedEntity.type && linkedEntity.title && linkedEntity.url && (
-            <div className="mb-6 bg-secondary-50 dark:bg-gray-700/50 border-l-4 border-primary-500 dark:border-primary-400 border border-secondary-200 dark:border-dark-border rounded-lg p-4 relative">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex items-center flex-1">
-                  <div className="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mr-3 flex-shrink-0">
-                    {linkedEntity.type === 'class' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-7 h-7 text-primary-600 dark:text-primary-400">
-                        <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
-                      </svg>
-                    )}
-                    {linkedEntity.type === 'module' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-7 h-7 text-primary-600 dark:text-primary-400">
-                        <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
-                      </svg>
-                    )}
-                    {linkedEntity.type === 'assignment' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-7 h-7 text-primary-600 dark:text-primary-400">
-                        <path fillRule="evenodd" d="M15.988 3.012A2.25 2.25 0 0118 5.25v6.5A2.25 2.25 0 0115.75 14H13.5v-3.379a3 3 0 00-.879-2.121l-3.12-3.121a3 3 0 00-1.402-.791 2.252 2.252 0 011.913-1.576A2.25 2.25 0 0112.25 1h1.5a2.25 2.25 0 012.238 2.012zM11.5 3.25a.75.75 0 01.75-.75h1.5a.75.75 0 01.75.75v.25h-3v-.25z" clipRule="evenodd" />
-                        <path d="M3.5 6A1.5 1.5 0 002 7.5v9A1.5 1.5 0 003.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L8.44 6.439A1.5 1.5 0 007.378 6H3.5z" />
-                      </svg>
-                    )}
-                  </div>
+          {/* Prominent Linked Entity Button Section */}
+          {news.linked_type && (news.class_title || news.module_title || news.assignment_title) && (
+            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-lg p-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between">
+                <div className="flex items-center mb-3 md:mb-0">
+                  {getLinkedEntityInfo()?.icon}
                   <div>
-                    <h3 className="text-lg font-bold text-secondary-900 dark:text-dark-text">
-                      {linkedEntity.title}
-                    </h3>
-                    <p className="text-sm text-secondary-500 dark:text-dark-muted">
-                      This announcement is related to a {linkedEntity.type}
-                    </p>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">Related {getLinkedEntityInfo()?.entityType}</span>
+                    <h3 className="text-lg font-bold">{getLinkedEntityInfo()?.title}</h3>
                   </div>
                 </div>
                 
-                {/* Extra prominent button */}
-                <Link
-                  to={linkedEntity.url}
-                  className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-md text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 hover:scale-105"
+                <Link 
+                  to={getLinkedEntityInfo()?.url || '#'}
+                  className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition-colors"
                 >
-                  Go to {linkedEntity.type}
-                  <svg className="ml-2 -mr-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                  <span className="mr-2">Go to {getLinkedEntityInfo()?.entityType}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                   </svg>
                 </Link>
               </div>
             </div>
           )}
-
-          {/* Optional: Fallback message if there's a problem with the linked entity data */}
-          {news && news.linked_type && (!linkedEntity.title || !linkedEntity.url) && (
-            <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-800 text-yellow-700 dark:text-yellow-400 px-4 py-3 rounded relative">
-              <p className="font-medium">
-                This announcement is linked to a {news.linked_type} (ID: {news.linked_id}), but the linked content could not be found.
-              </p>
+          
+          {/* Fallback message if there's a problem with linked data */}
+          {news.linked_type && !(news.class_title || news.module_title || news.assignment_title) && (
+            <div className="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-600 rounded-lg text-sm">
+              <p>This announcement is linked to a {news.linked_type}, but the content could not be found.</p>
             </div>
           )}
-
+          
           <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text">
             <ReactMarkdown
               remarkPlugins={[remarkMath, remarkGfm]}
