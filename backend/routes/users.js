@@ -53,12 +53,24 @@ router.post('/register', async (req, res) => {
 
     const user = result.rows[0];
 
-    // Generate JWT token
+    // Generate JWT token with a unique jti (JWT ID) claim
+    const jti = require('crypto').randomBytes(16).toString('hex');
     const token = jwt.sign(
-      { id: user.id, username: user.username, email: user.email, role: user.role },
+      { 
+        id: user.id, 
+        username: user.username, 
+        email: user.email, 
+        role: user.role,
+        jti: jti // Add unique identifier
+      },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    // Store token in Redis with user ID for reference
+    await redisClient.set(`user_token:${user.id}`, token, {
+      EX: 7 * 24 * 60 * 60 // 7 days in seconds
+    });
 
     // Set cookie
     res.cookie('token', token, {
@@ -108,12 +120,24 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT token with a unique jti (JWT ID) claim
+    const jti = require('crypto').randomBytes(16).toString('hex');
     const token = jwt.sign(
-      { id: user.id, username: user.username, email: user.email, role: user.role },
+      { 
+        id: user.id, 
+        username: user.username, 
+        email: user.email, 
+        role: user.role,
+        jti: jti // Add unique identifier
+      },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    // Store token in Redis with user ID for reference
+    await redisClient.set(`user_token:${user.id}`, token, {
+      EX: 7 * 24 * 60 * 60 // 7 days in seconds
+    });
 
     // Set cookie
     res.cookie('token', token, {
@@ -141,14 +165,17 @@ router.post('/login', async (req, res) => {
 // Logout
 router.post('/logout', authenticate, async (req, res) => {
   try {
-    // Add token to blacklist in Redis
-    await redisClient.set(`bl_${req.token}`, 'true', {
-      EX: 60 * 60 * 24 * 7 // 7 days (match token expiry)
-    });
-
-    // Clear cookie
+    const userId = req.user.id;
+    
+    console.log('Logging out user:', userId);
+    
+    // Remove the active token for this user
+    await redisClient.del(`user_token:${userId}`);
+    console.log('Removed user token from Redis');
+    
+    // Clear the cookie
     res.clearCookie('token');
-
+    
     res.json({ message: 'Logout successful' });
   } catch (error) {
     console.error('Logout error:', error);

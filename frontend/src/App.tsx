@@ -21,6 +21,9 @@ import ClassForm from './components/classes/ClassForm';
 import ModuleDetail from './components/modules/ModuleDetail';
 import ModuleForm from './components/modules/ModuleForm';
 import Profile from './components/profile/Profile';
+import NewsList from './components/news/NewsList';
+import NewsDetail from './components/news/NewsDetail';
+import NewsForm from './components/news/NewsForm';
 
 function App() {
   // Disable scroll restoration from React Router
@@ -54,8 +57,8 @@ function App() {
                   <Route path="/modules/:id/edit" element={<ModuleForm isEditing />} />
                   <Route path="/assignments" element={<AssignmentList />} />
                   <Route path="/assignments/:id" element={<AssignmentDetail />} />
-                  <Route path="/news" element={<ComingSoon pageName="News" />} />
-                  <Route path="/news/:id" element={<ComingSoon pageName="News Detail" />} />
+                  <Route path="/news" element={<NewsList />} />
+                  <Route path="/news/:id" element={<NewsDetail />} />
                 </Route>
 
                 {/* Protected routes requiring authentication */}
@@ -75,6 +78,8 @@ function App() {
                   <Route path="/assignments/create" element={<AssignmentForm />} />
                   <Route path="/assignments/:id/edit" element={<AssignmentForm isEditing />} />
                   <Route path="/assignments/:id/submissions" element={<AssignmentSubmissions />} />
+                  <Route path="/news/create" element={<NewsForm />} />
+                  <Route path="/news/:id/edit" element={<NewsForm isEditing />} />
                 </Route>
 
                 {/* Praktikan-only routes */}

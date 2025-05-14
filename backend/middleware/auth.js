@@ -42,10 +42,17 @@ const authenticate = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    // Check if token is blacklisted (user logged out)
-    const isBlacklisted = await redisClient.get(`bl_${token}`);
-    if (isBlacklisted) {
-      return res.status(401).json({ message: 'Token is no longer valid' });
+    // For logout route, allow the request to proceed without additional checks
+    if (req.path === '/logout') {
+      req.user = decoded;
+      req.token = token;
+      return next();
+    }
+    
+    // For non-logout routes, check if token is still valid for this user
+    const storedToken = await redisClient.get(`user_token:${decoded.id}`);
+    if (!storedToken || storedToken !== token) {
+      return res.status(401).json({ message: 'Session invalid, please login again' });
     }
 
     // Add user data to request
@@ -55,6 +62,9 @@ const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Authentication error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Session expired, please login again' });
+    }
     res.status(401).json({ message: 'Invalid authentication token' });
   }
 };
