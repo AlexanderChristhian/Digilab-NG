@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { useAuth } from '../../context/AuthContext';
+import CreateAnnouncementButton from '../news/CreateAnnouncementButton';
 
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -44,6 +45,8 @@ const ModuleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [relatedNews, setRelatedNews] = useState([]);
+  const [loadingNews, setLoadingNews] = useState(false);
 
   useEffect(() => {
     const fetchModuleData = async () => {
@@ -76,6 +79,24 @@ const ModuleDetail = () => {
 
     fetchModuleData();
   }, [id, user]);
+
+  useEffect(() => {
+    const fetchRelatedNews = async () => {
+      if (!module) return;
+
+      setLoadingNews(true);
+      try {
+        const response = await axios.get(`${API_URL}/news/for/module/${module.id}`);
+        setRelatedNews(response.data);
+      } catch (error) {
+        console.error('Error fetching related news:', error);
+      } finally {
+        setLoadingNews(false);
+      }
+    };
+
+    fetchRelatedNews();
+  }, [module]);
 
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this module? This action cannot be undone.')) {
@@ -247,6 +268,41 @@ const ModuleDetail = () => {
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* Related News Section */}
+          {relatedNews.length > 0 && (
+            <div className="mt-6 p-4 bg-secondary-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-medium text-secondary-900 dark:text-dark-text">
+                  Related Announcements
+                </h3>
+                {module && user?.role === 'aslab' && (
+                  <CreateAnnouncementButton 
+                    entityType="module" 
+                    entityId={module.id} 
+                    variant="compact" 
+                  />
+                )}
+              </div>
+              <div className="space-y-2">
+                {relatedNews.map(news => (
+                  <Link 
+                    key={news.id}
+                    to={`/news/${news.id}`} 
+                    className="block p-3 border border-secondary-200 dark:border-dark-border rounded-md hover:bg-white dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <div className="flex justify-between">
+                      <span className="font-medium text-primary-600 dark:text-primary-400">{news.title}</span>
+                      <span className="text-xs text-secondary-500 dark:text-dark-muted">{new Date(news.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-sm text-secondary-600 dark:text-dark-muted line-clamp-2 mt-1">
+                      {news.content.substring(0, 100)}...
+                    </p>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </>

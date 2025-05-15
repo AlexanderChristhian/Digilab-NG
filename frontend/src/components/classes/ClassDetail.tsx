@@ -8,6 +8,7 @@ import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import CreateAnnouncementButton from '../news/CreateAnnouncementButton';
 
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -215,6 +216,13 @@ const ClassDetail = () => {
                   'Enroll in Class'
                 )}
               </button>
+            )}
+            {canEdit && (
+              <CreateAnnouncementButton 
+                entityType="class" 
+                entityId={classData.id} 
+                entityTitle={classData.title} 
+              />
             )}
           </div>
         </div>

@@ -155,6 +155,22 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Create news_entities table with standard CHECK constraint instead of enum
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS news_entities (
+        news_id INTEGER REFERENCES news(id) ON DELETE CASCADE,
+        entity_type VARCHAR(20) NOT NULL CHECK (entity_type IN ('class', 'module', 'assignment')),
+        entity_id INTEGER NOT NULL,
+        PRIMARY KEY (news_id)
+      )
+    `);
+
+    // Create index for faster queries
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_news_entities_by_target
+      ON news_entities(entity_type, entity_id)
+    `);
+
     console.log('Database schema initialized successfully');
   } catch (error) {
     console.error('Error initializing database schema:', error);
