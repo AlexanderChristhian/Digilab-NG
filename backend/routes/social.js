@@ -9,11 +9,11 @@ const router = express.Router();
 // Configure multer for file uploads
 const upload = multer({ dest: 'uploads/' });
 
-// Get all posts
-router.get('/posts', async (req, res) => {
+// Get all posts - update the query to include profile image
+router.get('/posts', authenticate, async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT p.*, u.username, 
+    let query = `
+      SELECT p.*, u.username, u.profile_image, 
         (SELECT COUNT(*) FROM comments WHERE post_id = p.id) as comment_count,
         e.entity_type as linked_type, e.entity_id as linked_id,
         c.title as class_title, c.id as class_id,
@@ -26,7 +26,9 @@ router.get('/posts', async (req, res) => {
       LEFT JOIN modules m ON e.entity_type = 'module' AND e.entity_id = m.id
       LEFT JOIN assignments a ON e.entity_type = 'assignment' AND e.entity_id = a.id
       ORDER BY p.created_at DESC
-    `);
+    `;
+
+    const result = await db.query(query);
 
     res.json(result.rows);
   } catch (error) {
@@ -35,12 +37,12 @@ router.get('/posts', async (req, res) => {
   }
 });
 
-// Get a post by ID with comments
-router.get('/posts/:id', async (req, res) => {
+// Get a post by ID with comments - update to include profile images
+router.get('/posts/:id', authenticate, async (req, res) => {
   try {
-    // Get post with entity information
+    // Get post with entity information and profile image
     const postResult = await db.query(`
-      SELECT p.*, u.username,
+      SELECT p.*, u.username, u.profile_image,
         e.entity_type as linked_type, e.entity_id as linked_id,
         c.title as class_title, c.id as class_id,
         m.title as module_title, m.id as module_id,
@@ -58,9 +60,9 @@ router.get('/posts/:id', async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    // Get comments
+    // Get comments with profile images
     const commentsResult = await db.query(`
-      SELECT c.*, u.username
+      SELECT c.*, u.username, u.profile_image
       FROM comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.post_id = $1
@@ -170,9 +172,10 @@ router.post('/posts', authenticate, upload.single('image'), async (req, res) => 
 
       await client.query('COMMIT');
 
-      // Get username for response
-      const userResult = await db.query('SELECT username FROM users WHERE id = $1', [req.user.id]);
+      // Get username and profile image for response
+      const userResult = await db.query('SELECT username, profile_image FROM users WHERE id = $1', [req.user.id]);
       post.username = userResult.rows[0].username;
+      post.profile_image = userResult.rows[0].profile_image;
       post.comment_count = 0;
 
       // Get linked entity details if applicable
@@ -318,7 +321,7 @@ router.put('/posts/:id', authenticate, upload.single('image'), async (req, res) 
 
       // Get complete post with entity information
       const completePostResult = await db.query(`
-        SELECT p.*, u.username,
+        SELECT p.*, u.username, u.profile_image,
                e.entity_type as linked_type, e.entity_id as linked_id,
                c.title as class_title, c.id as class_id,
                m.title as module_title, m.id as module_id,
@@ -486,10 +489,11 @@ router.post('/posts/:id/comments', authenticate, async (req, res) => {
       [req.params.id, req.user.id, content]
     );
 
-    // Get username for response
-    const userResult = await db.query('SELECT username FROM users WHERE id = $1', [req.user.id]);
+    // Get username and profile image for response
+    const userResult = await db.query('SELECT username, profile_image FROM users WHERE id = $1', [req.user.id]);
     const comment = result.rows[0];
     comment.username = userResult.rows[0].username;
+    comment.profile_image = userResult.rows[0].profile_image;
 
     res.status(201).json(comment);
   } catch (error) {

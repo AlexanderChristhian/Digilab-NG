@@ -23,6 +23,7 @@ interface Post {
   assignment_title?: string;
   assignment_id?: number;
   comments: Comment[];
+  profile_image?: string | null; // Add profile image field
 }
 
 interface Comment {
@@ -31,6 +32,7 @@ interface Comment {
   created_at: string;
   user_id: number;
   username: string;
+  profile_image?: string | null; // Add profile image field
 }
 
 const PostDetail = () => {
@@ -246,8 +248,16 @@ const PostDetail = () => {
         <div className="p-5">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center">
-              <div className="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-lg">
-                {post.username.charAt(0).toUpperCase()}
+              <div className="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-lg overflow-hidden">
+                {post.profile_image ? (
+      <img 
+        src={post.profile_image} 
+        alt={post.username} 
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      post.username.charAt(0).toUpperCase()
+    )}
               </div>
               <div className="ml-3">
                 <p className="font-medium text-lg text-secondary-900 dark:text-dark-text">
@@ -336,8 +346,16 @@ const PostDetail = () => {
             {user && (
               <form onSubmit={handleSubmitComment} className="mb-6">
                 <div className="flex items-start space-x-2">
-                  <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex-shrink-0 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold">
-                    {user.username.charAt(0).toUpperCase()}
+                  <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex-shrink-0 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold overflow-hidden">
+                    {user?.profile_image ? (
+      <img 
+        src={user.profile_image} 
+        alt={user.username} 
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      user?.username.charAt(0).toUpperCase()
+    )}
                   </div>
                   <div className="flex-grow">
                     <textarea
@@ -366,8 +384,16 @@ const PostDetail = () => {
               <div className="space-y-4">
                 {post.comments.map(comment => (
                   <div key={comment.id} className="flex space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex-shrink-0 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold">
-                      {comment.username.charAt(0).toUpperCase()}
+                    <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-900 flex-shrink-0 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold overflow-hidden">
+                      {comment.profile_image ? (
+        <img 
+          src={comment.profile_image} 
+          alt={comment.username} 
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        comment.username.charAt(0).toUpperCase()
+      )}
                     </div>
                     <div className="flex-grow">
                       <div className="bg-secondary-50 dark:bg-gray-700 rounded-lg px-3 py-2">

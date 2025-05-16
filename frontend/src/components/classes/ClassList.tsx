@@ -137,7 +137,8 @@ const ClassList = () => {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {classes.map((classItem) => (
-            <div key={classItem.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden card-hover">
+            <div key={classItem.id} className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden card-hover flex flex-col h-full">
+              {/* Image section */}
               {classItem.image_url ? (
                 <div className="h-48 w-full overflow-hidden">
                   <img
@@ -155,49 +156,61 @@ const ClassList = () => {
                   </svg>
                 </div>
               )}
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-secondary-900 dark:text-dark-text mb-2">
-                  {classItem.title}
-                </h3>
-                <p className="text-secondary-600 dark:text-dark-muted mb-4 line-clamp-3">
-                  {classItem.description}
-                </p>
-                <div className="flex items-center text-sm text-secondary-500 dark:text-dark-muted mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 mr-1">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clipRule="evenodd" />
-                  </svg>
-                  <span>By {classItem.creator_name}</span>
+              
+              {/* Content section with flex-grow to push footer to bottom */}
+              <div className="flex flex-col flex-grow p-6">
+                {/* Title and description section */}
+                <div className="flex-grow">
+                  <h3 className="text-xl font-semibold text-secondary-900 dark:text-dark-text mb-2">
+                    {classItem.title}
+                  </h3>
+                  <p className="text-secondary-600 dark:text-dark-muted mb-4 line-clamp-3">
+                    {classItem.description}
+                  </p>
                 </div>
-                <div className="flex justify-between items-center">
-                  {classItem.is_enrolled || user?.role === 'aslab' ? (
-                    <Link
-                      to={`/classes/${classItem.id}`}
-                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors"
-                    >
-                      View Class
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={() => handleEnroll(classItem.id)}
-                      disabled={enrollingId === classItem.id}
-                      className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {enrollingId === classItem.id ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Enrolling...
-                        </>
-                      ) : (
-                        'Enroll Now'
-                      )}
-                    </button>
-                  )}
-                  <span className="text-xs text-secondary-500 dark:text-dark-muted">
-                    {new Date(classItem.created_at).toLocaleDateString()}
-                  </span>
+                
+                {/* Footer section that stays at the bottom */}
+                <div className="mt-auto pt-4">
+                  {/* Creator info with icon */}
+                  <div className="flex items-center text-sm text-secondary-500 dark:text-dark-muted mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 mr-1">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clipRule="evenodd" />
+                    </svg>
+                    <span>By {classItem.creator_name}</span>
+                  </div>
+                  
+                  {/* Action buttons and date */}
+                  <div className="flex justify-between items-center">
+                    {classItem.is_enrolled || user?.role === 'aslab' ? (
+                      <Link
+                        to={`/classes/${classItem.id}`}
+                        className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+                      >
+                        View Class
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => handleEnroll(classItem.id)}
+                        disabled={enrollingId === classItem.id}
+                        className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {enrollingId === classItem.id ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Enrolling...
+                          </>
+                        ) : (
+                          'Enroll Now'
+                        )}
+                      </button>
+                    )}
+                    <span className="text-xs text-secondary-500 dark:text-dark-muted">
+                      {new Date(classItem.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

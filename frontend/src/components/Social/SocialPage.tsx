@@ -25,6 +25,7 @@ interface Post {
   module_id?: number;
   assignment_title?: string;
   assignment_id?: number;
+  profile_image?: string | null; // Add profile image field
 }
 
 const SocialPage = () => {
@@ -251,9 +252,18 @@ const SocialPage = () => {
                   {/* Thread-like header section */}
                   <div className="px-4 py-3 border-b border-secondary-200 dark:border-dark-border flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold">
-                        {post.username.charAt(0).toUpperCase()}
+                      <div className="h-10 w-10 rounded-full flex-shrink-0 bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold overflow-hidden">
+                        {post.profile_image ? (
+                          <img 
+                            src={post.profile_image} 
+                            alt={post.username} 
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span>{post.username.charAt(0).toUpperCase()}</span>
+                        )}
                       </div>
+                      
                       <div className="ml-3">
                         <div className="flex items-center">
                           <p className="font-semibold text-secondary-900 dark:text-dark-text">
