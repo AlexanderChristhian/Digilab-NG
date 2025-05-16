@@ -120,7 +120,7 @@ const Navbar = () => {
                   to="/social"
                   className={`menu-item ${isActive('/social') ? 'text-white font-medium' : 'text-primary-100 hover:text-white dark:text-primary-200 dark:hover:text-white'} transition-colors`}
                 >
-                  Social
+                  Threads
                   {isActive('/social') && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white rounded-full"></span>}
                 </Link>
               </>
