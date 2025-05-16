@@ -130,6 +130,16 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Create news_entities table with standard CHECK constraint instead of enum
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS posts_entities (
+        posts_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+        entity_type VARCHAR(20) NOT NULL CHECK (entity_type IN ('class', 'module', 'assignment')),
+        entity_id INTEGER NOT NULL,
+        PRIMARY KEY (posts_id)
+      )
+    `);
+
     // Create comments table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS comments (
