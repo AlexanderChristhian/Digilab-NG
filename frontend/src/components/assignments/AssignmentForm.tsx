@@ -293,11 +293,21 @@ const AssignmentForm = ({ isEditing = false }: AssignmentFormProps) => {
                   required
                 />
               ) : (
-                <div className="prose dark:prose-invert prose-primary max-w-none min-h-[200px] p-4 border border-secondary-200 dark:border-dark-border rounded-md text-secondary-700 dark:text-dark-text">
+                <div className="prose dark:prose-invert prose-primary max-w-none min-h-[200px] p-4 border border-secondary-200 dark:border-dark-border rounded-md text-secondary-700 dark:text-dark-text break-words">
                   {description ? (
                     <ReactMarkdown
                       remarkPlugins={[remarkMath, remarkGfm]}
                       rehypePlugins={[rehypeKatex]}
+                      components={{
+                        a: ({ node, ...props }) => (
+                          <a
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                          />
+                        ),
+                      }}
                     >
                       {description}
                     </ReactMarkdown>

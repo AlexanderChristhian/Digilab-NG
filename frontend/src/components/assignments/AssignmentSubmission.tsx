@@ -276,11 +276,21 @@ const AssignmentSubmission = () => {
                   required
                 />
               ) : (
-                <div className="prose dark:prose-invert prose-primary max-w-none min-h-[200px] p-4 border border-secondary-200 dark:border-dark-border rounded-md text-secondary-700 dark:text-dark-text">
+                <div className="prose dark:prose-invert prose-primary max-w-none min-h-[200px] p-4 border border-secondary-200 dark:border-dark-border rounded-md text-secondary-700 dark:text-dark-text break-words">
                   {content ? (
                     <ReactMarkdown
                       remarkPlugins={[remarkMath, remarkGfm]}
                       rehypePlugins={[rehypeKatex]}
+                      components={{
+                        a: ({ node, ...props }) => (
+                          <a
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                          />
+                        ),
+                      }}
                     >
                       {content}
                     </ReactMarkdown>
@@ -313,16 +323,16 @@ const AssignmentSubmission = () => {
                   <ul className="divide-y divide-secondary-200 dark:divide-dark-border">
                     {existingFiles.map((fileUrl, index) => (
                       <li key={index} className="py-3 flex justify-between items-center">
-                        <div className="flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2 text-secondary-500 dark:text-dark-muted">
+                        <div className="flex flex-wrap items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 w-5 h-5 mr-2 text-secondary-500 dark:text-dark-muted">
                             <path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" clipRule="evenodd" />
                             <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
                           </svg>
-                          <div>
+                          <div className="flex-grow min-w-0 mr-2">
                             <a
                               href={`${API_URL}/download?url=${encodeURIComponent(fileUrl)}&filename=${encodeURIComponent(`Assignment_${assignment.id}_Attachment_${index + 1}`)}`}
                               download={`Assignment_${assignment.id}_Attachment_${index + 1}`}
-                              className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                              className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words"
                             >
                               Attachment {index + 1}
                             </a>
@@ -351,13 +361,13 @@ const AssignmentSubmission = () => {
                   <ul className="divide-y divide-secondary-200 dark:divide-dark-border">
                     {files.map((file, index) => (
                       <li key={index} className="py-3 flex justify-between items-center">
-                        <div className="flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2 text-secondary-500 dark:text-dark-muted">
+                        <div className="flex flex-wrap items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 w-5 h-5 mr-2 text-secondary-500 dark:text-dark-muted">
                             <path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" clipRule="evenodd" />
                             <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
                           </svg>
-                          <div>
-                            <p className="text-sm font-medium text-secondary-900 dark:text-dark-text">{file.name}</p>
+                          <div className="flex-grow min-w-0 mr-2">
+                            <p className="text-sm font-medium text-secondary-900 dark:text-dark-text break-words">{file.name}</p>
                             <p className="text-xs text-secondary-500 dark:text-dark-muted">
                               {(file.size / 1024).toFixed(2)} KB • {file.type || 'Unknown type'}
                             </p>

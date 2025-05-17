@@ -242,10 +242,20 @@ const Dashboard = () => {
                   <h3 className="text-lg font-medium text-secondary-900 dark:text-dark-text">
                     {classItem.title}
                   </h3>
-                  <div className="mt-2 text-sm text-secondary-600 dark:text-dark-muted line-clamp-2 prose-sm prose-headings:mt-0 prose-headings:mb-1 prose-p:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose dark:prose-invert">
+                  <div className="mt-2 text-sm text-secondary-600 dark:text-dark-muted line-clamp-2 prose-sm prose-headings:mt-0 prose-headings:mb-1 prose-p:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose dark:prose-invert break-words">
                     <ReactMarkdown
                       remarkPlugins={[remarkMath, remarkGfm]}
                       rehypePlugins={[rehypeKatex]}
+                      components={{
+                        a: ({ node, ...props }) => (
+                          <a
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                          />
+                        ),
+                      }}
                     >
                       {classItem.description}
                     </ReactMarkdown>

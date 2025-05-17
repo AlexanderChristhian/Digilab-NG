@@ -34,7 +34,7 @@ const NewsDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +79,7 @@ const NewsDetail = () => {
       console.log("No linked entity found");
       return null;
     }
-    
+
     console.log("Getting linked entity info:", {
       type: news.linked_type,
       id: news.linked_id,
@@ -90,12 +90,12 @@ const NewsDetail = () => {
       assignmentTitle: news.assignment_title,
       assignmentId: news.assignment_id
     });
-    
+
     let icon;
     let title = '';
     let url = '';
     let entityType = '';
-    
+
     switch (news.linked_type) {
       case 'class':
         if (!news.class_id || !news.class_title) {
@@ -152,7 +152,7 @@ const NewsDetail = () => {
         console.log(`Unknown linked_type: ${news.linked_type}`);
         return null;
     }
-    
+
     console.log("Linked entity info:", { entityType, title, url });
     return { icon, title, url, entityType };
   };
@@ -253,7 +253,7 @@ const NewsDetail = () => {
               </>
             )}
           </div>
-          
+
           {/* Prominent Linked Entity Button Section */}
           {news.linked_type && (news.class_title || news.module_title || news.assignment_title) && (
             <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-lg p-4">
@@ -265,8 +265,8 @@ const NewsDetail = () => {
                     <h3 className="text-lg font-bold">{getLinkedEntityInfo()?.title}</h3>
                   </div>
                 </div>
-                
-                <Link 
+
+                <Link
                   to={getLinkedEntityInfo()?.url || '#'}
                   className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition-colors"
                 >
@@ -278,18 +278,28 @@ const NewsDetail = () => {
               </div>
             </div>
           )}
-          
+
           {/* Fallback message if there's a problem with linked data */}
           {news.linked_type && !(news.class_title || news.module_title || news.assignment_title) && (
             <div className="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-600 rounded-lg text-sm">
               <p>This announcement is linked to a {news.linked_type}, but the content could not be found.</p>
             </div>
           )}
-          
-          <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text">
+
+          <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text break-words">
             <ReactMarkdown
               remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[rehypeKatex]}
+              components={{
+                a: ({ node, ...props }) => (
+                  <a
+                    {...props}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                  />
+                ),
+              }}
             >
               {news.content}
             </ReactMarkdown>

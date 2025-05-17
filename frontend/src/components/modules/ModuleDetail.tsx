@@ -153,9 +153,9 @@ const ModuleDetail = () => {
   return (
     <div className="container-custom py-8">
       <div className="mb-6">
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div>
-            <div className="flex items-center space-x-2 text-sm text-secondary-600 dark:text-dark-muted mb-1">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-secondary-600 dark:text-dark-muted mb-1">
               <Link to={`/classes/${module.class_id}`} className="hover:text-primary-600 dark:hover:text-primary-400">
                 {module.class_title}
               </Link>
@@ -175,7 +175,7 @@ const ModuleDetail = () => {
             <h1 className="text-3xl font-bold text-secondary-900 dark:text-dark-text">{module.title}</h1>
           </div>
           {canEdit && (
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               <Link
                 to={`/modules/${id}/edit`}
                 className="inline-flex items-center px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md text-sm font-medium text-secondary-700 dark:text-dark-text bg-white dark:bg-gray-700 hover:bg-secondary-50 dark:hover:bg-gray-600"
@@ -216,16 +216,19 @@ const ModuleDetail = () => {
         <>
           <div className="bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow overflow-hidden mb-6">
             <div className="p-6">
-              <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text">
+              <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text break-words">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath, remarkGfm]}
                   rehypePlugins={[rehypeKatex]}
                   components={{
-                    // Add custom components for markdown rendering if needed
                     a: ({ node, ...props }) => (
-                      <a {...props} className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300" />
+                      <a
+                        {...props}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                      />
                     ),
-                    // Add more custom components as needed
                   }}
                 >
                   {module.content}
@@ -245,22 +248,22 @@ const ModuleDetail = () => {
                   <li key={file.id} className="p-4 hover:bg-secondary-50 dark:hover:bg-gray-700">
                     <a
                       href={`${API_URL}/download?url=${encodeURIComponent(file.file_url)}&filename=${encodeURIComponent(file.file_name)}`}
-                      className="flex items-center"
+                      className="flex flex-wrap items-center"
                       download={file.file_name}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-3 text-secondary-500 dark:text-dark-muted">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 w-5 h-5 mr-3 text-secondary-500 dark:text-dark-muted">
                         <path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" clipRule="evenodd" />
                         <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
                       </svg>
-                      <div>
-                        <span className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-medium">
+                      <div className="flex-grow min-w-0 mr-2">
+                        <span className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-medium break-words">
                           {file.file_name}
                         </span>
                         <p className="text-xs text-secondary-500 dark:text-dark-muted mt-1">
                           {(file.file_size / 1024).toFixed(2)} KB • {new Date(file.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ml-auto text-secondary-500 dark:text-dark-muted">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="flex-shrink-0 w-4 h-4 text-secondary-500 dark:text-dark-muted">
                         <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
                         <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
                       </svg>
@@ -274,23 +277,23 @@ const ModuleDetail = () => {
           {/* Related News Section */}
           {relatedNews.length > 0 && (
             <div className="mt-6 p-4 bg-secondary-50 dark:bg-gray-800 rounded-lg">
-              <div className="flex justify-between items-center mb-3">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                 <h3 className="text-lg font-medium text-secondary-900 dark:text-dark-text">
                   Related Announcements
                 </h3>
                 {module && user?.role === 'aslab' && (
-                  <CreateAnnouncementButton 
-                    entityType="module" 
-                    entityId={module.id} 
-                    variant="compact" 
+                  <CreateAnnouncementButton
+                    entityType="module"
+                    entityId={module.id}
+                    variant="compact"
                   />
                 )}
               </div>
               <div className="space-y-2">
                 {relatedNews.map(news => (
-                  <Link 
+                  <Link
                     key={news.id}
-                    to={`/news/${news.id}`} 
+                    to={`/news/${news.id}`}
                     className="block p-3 border border-secondary-200 dark:border-dark-border rounded-md hover:bg-white dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className="flex justify-between">

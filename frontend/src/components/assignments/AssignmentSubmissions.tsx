@@ -449,10 +449,20 @@ const AssignmentSubmissions = () => {
                   </p>
                 </div>
                 <div className="p-6">
-                  <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text">
+                  <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text break-words">
                     <ReactMarkdown
                       remarkPlugins={[remarkMath, remarkGfm]}
                       rehypePlugins={[rehypeKatex]}
+                      components={{
+                        a: ({ node, ...props }) => (
+                          <a
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                          />
+                        ),
+                      }}
                     >
                       {selectedSubmission.content}
                     </ReactMarkdown>
@@ -463,14 +473,14 @@ const AssignmentSubmissions = () => {
                       <h3 className="text-sm font-medium text-secondary-700 dark:text-dark-text mb-2">Attached Files:</h3>
                       <div className="space-y-2">
                         {JSON.parse(selectedSubmission.file_url).map((url: string, index: number) => (
-                          <div key={index} className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-secondary-500 dark:text-dark-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div key={index} className="flex flex-wrap items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 h-5 w-5 mr-2 text-secondary-500 dark:text-dark-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             <a
                               href={`${API_URL}/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(`Submission_${selectedSubmission.username}_Attachment_${index + 1}`)}`}
                               download={`Submission_${selectedSubmission.username}_Attachment_${index + 1}`}
-                              className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                              className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words"
                             >
                               Attachment {index + 1}
                             </a>

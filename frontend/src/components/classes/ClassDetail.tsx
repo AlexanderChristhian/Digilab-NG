@@ -167,14 +167,14 @@ const ClassDetail = () => {
   return (
     <div className="container-custom py-8">
       <div className="mb-8">
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div>
             <h1 className="text-3xl font-bold text-secondary-900 dark:text-dark-text">{classData.title}</h1>
             <p className="text-secondary-600 dark:text-dark-muted mt-2">
               Created by {classData.creator_name} • {new Date(classData.created_at).toLocaleDateString()}
             </p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             {canEdit && (
               <>
                 <Link
@@ -218,10 +218,10 @@ const ClassDetail = () => {
               </button>
             )}
             {canEdit && (
-              <CreateAnnouncementButton 
-                entityType="class" 
-                entityId={classData.id} 
-                entityTitle={classData.title} 
+              <CreateAnnouncementButton
+                entityType="class"
+                entityId={classData.id}
+                entityTitle={classData.title}
               />
             )}
           </div>
@@ -229,10 +229,20 @@ const ClassDetail = () => {
 
         {classData.description && (
           <div className="mt-4 bg-white dark:bg-gradient-to-r dark:from-gray-800 dark:to-gray-700 rounded-lg shadow p-4">
-            <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text">
+            <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text break-words">
               <ReactMarkdown
                 remarkPlugins={[remarkMath, remarkGfm]}
                 rehypePlugins={[rehypeKatex]}
+                components={{
+                  a: ({ node, ...props }) => (
+                    <a
+                      {...props}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                    />
+                  ),
+                }}
               >
                 {classData.description}
               </ReactMarkdown>
@@ -286,7 +296,7 @@ const ClassDetail = () => {
 
           {activeTab === 'assignments' && (
             <div>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                 <h2 className="text-xl font-semibold text-secondary-900 dark:text-dark-text">Assignments</h2>
                 {canEdit && (
                   <Link
@@ -323,15 +333,25 @@ const ClassDetail = () => {
                             Due: {new Date(assignment.deadline).toLocaleDateString()}
                           </span>
                         </div>
-                        <div className="mt-1 text-sm text-secondary-600 dark:text-dark-muted line-clamp-2 prose-sm prose-headings:mt-0 prose-headings:mb-1 prose-p:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose dark:prose-invert">
+                        <div className="mt-1 text-sm text-secondary-600 dark:text-dark-muted line-clamp-2 prose-sm prose-headings:mt-0 prose-headings:mb-1 prose-p:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose dark:prose-invert break-words">
                           <ReactMarkdown
                             remarkPlugins={[remarkMath, remarkGfm]}
                             rehypePlugins={[rehypeKatex]}
+                            components={{
+                              a: ({ node, ...props }) => (
+                                <a
+                                  {...props}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                                />
+                              ),
+                            }}
                           >
                             {assignment.description}
                           </ReactMarkdown>
                         </div>
-                        <div className="mt-2 flex justify-between items-center">
+                        <div className="mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <Link
                             to={`/assignments/${assignment.id}`}
                             className="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
@@ -341,7 +361,7 @@ const ClassDetail = () => {
                               <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
                             </svg>
                           </Link>
-                          <div className="flex space-x-2">
+                          <div className="flex flex-wrap gap-2">
                             {user?.role === 'praktikan' && (
                               <Link
                                 to={`/assignments/${assignment.id}/submit`}

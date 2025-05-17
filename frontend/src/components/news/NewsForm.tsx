@@ -52,7 +52,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
-  
+
   // UI state
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -65,7 +65,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
   const [linkedId, setLinkedId] = useState<string>('');
   const [selectedClassId, setSelectedClassId] = useState<string>('');
   const [selectedFolderId, setSelectedFolderId] = useState<string>('');
-  
+
   // Data for hierarchical dropdowns
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [moduleFolders, setModuleFolders] = useState<ModuleFolderOption[]>([]);
@@ -77,22 +77,22 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
     // Check if there are any pre-filled linked entities from URL params
     const prefilledType = searchParams.get('type');
     const prefilledId = searchParams.get('id');
-    
+
     if (prefilledType && prefilledId && ['class', 'module', 'assignment'].includes(prefilledType)) {
       setLinkedType(prefilledType as 'class' | 'module' | 'assignment');
       setLinkedId(prefilledId);
-      
+
       // If prefilled with module or assignment, we'll need to load the class info later
       if (prefilledType === 'module' || prefilledType === 'assignment') {
         fetchEntityDetails(prefilledType, prefilledId);
       }
     }
-    
+
     // If editing, fetch the news data
     if (isEditing && id) {
       fetchNewsData();
     }
-    
+
     // Load initial classes data
     fetchClasses();
   }, [isEditing, id, searchParams]);
@@ -141,7 +141,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         console.log(`News is linked to ${newsData.linked_type} with ID ${newsData.linked_id}`);
         setLinkedType(newsData.linked_type);
         setLinkedId(newsData.linked_id.toString());
-        
+
         // If linked to module or assignment, fetch details for hierarchy
         if (newsData.linked_type === 'module' || newsData.linked_type === 'assignment') {
           await fetchEntityDetails(newsData.linked_type, newsData.linked_id.toString());
@@ -163,9 +163,9 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
     setLoadingOptions(true);
     try {
       const response = await axios.get(`${API_URL}/classes`);
-      setClasses(response.data.map((c: any) => ({ 
-        id: c.id, 
-        title: c.title 
+      setClasses(response.data.map((c: any) => ({
+        id: c.id,
+        title: c.title
       })));
     } catch (err) {
       console.error('Error fetching classes:', err);
@@ -178,7 +178,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
   // Fetch module folders for a specific class
   const fetchModuleFoldersForClass = async (classId: string) => {
     if (!classId) return;
-    
+
     setLoadingOptions(true);
     try {
       // Fetch folders for the selected class
@@ -189,7 +189,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         class_id: f.class_id,
         modules: [] // Will be populated later
       }));
-      
+
       // Fetch modules for the selected class
       const modulesResponse = await axios.get(`${API_URL}/modules/class/${classId}`);
       const modulesData = modulesResponse.data.map((m: any) => ({
@@ -198,7 +198,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         folder_id: m.folder_id,
         class_id: m.class_id
       }));
-      
+
       // Group modules by folder
       const modulesByFolder = modulesData.reduce((acc: any, module: ModuleOption) => {
         if (module.folder_id) {
@@ -207,7 +207,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         }
         return acc;
       }, {});
-      
+
       // Add modules to their respective folders
       const foldersWithModules = folders.map((folder: ModuleFolderOption) => {
         return {
@@ -215,13 +215,13 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
           modules: modulesByFolder[folder.id] || []
         };
       });
-      
+
       // Find modules without folders
       const modulesWithoutFolder = modulesData.filter((m: ModuleOption) => !m.folder_id);
-      
+
       setModuleFolders(foldersWithModules);
       setModules(modulesData);
-      
+
       // Fetch assignments for the selected class
       const assignmentsResponse = await axios.get(`${API_URL}/assignments/class/${classId}`);
       setAssignments(assignmentsResponse.data.map((a: any) => ({
@@ -243,14 +243,14 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
     console.log(`Selected class ID: ${newClassId}`);
     setSelectedClassId(newClassId);
     setSelectedFolderId('');
-    
+
     if (linkedType === 'class') {
       setLinkedId(newClassId);
       console.log(`Setting linkedId to ${newClassId} for class`);
     } else {
       setLinkedId(''); // Reset linked ID when changing class for module/assignment
     }
-    
+
     if (newClassId) {
       fetchModuleFoldersForClass(newClassId);
     }
@@ -268,13 +268,13 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
     const newType = e.target.value as 'class' | 'module' | 'assignment' | '';
     setLinkedType(newType);
   };
-  
+
   // Handle module selection through hierarchy
   const handleModuleSelection = (moduleId: string) => {
     console.log(`Selected module ID: ${moduleId}`);
     setLinkedId(moduleId);
   };
-  
+
   // Handle assignment selection
   const handleAssignmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const assignmentId = e.target.value;
@@ -294,7 +294,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
         }
         return;
       }
-      
+
       setImage(file);
 
       // Create a preview URL
@@ -338,7 +338,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
       formData.append('title', title.trim());
       formData.append('content', content.trim());
       if (image) formData.append('image', image);
-      
+
       // Add entity linking information if provided
       if (linkedType && linkedId) {
         formData.append('linkedType', linkedType);
@@ -395,7 +395,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
   // Render the hierarchical entity selection based on linked type
   const renderEntitySelection = () => {
     if (!linkedType) return null;
-    
+
     return (
       <div className="mt-3 space-y-3">
         {/* Class selection - always shown for all entity types */}
@@ -422,7 +422,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
             <label className="block text-sm font-medium text-secondary-700 dark:text-dark-text mb-1">
               Select Module
             </label>
-            
+
             {loadingOptions ? (
               <div className="p-3 text-center text-secondary-500 dark:text-dark-muted border border-secondary-300 dark:border-dark-border rounded-md">
                 Loading modules...
@@ -440,7 +440,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                     <div className="pl-4 space-y-1">
                       {folder.modules.map(module => (
                         <div key={module.id} className="flex items-center">
-                          <input 
+                          <input
                             type="radio"
                             id={`module-${module.id}`}
                             name="module"
@@ -449,7 +449,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                             onChange={() => handleModuleSelection(module.id.toString())}
                             className="h-4 w-4 text-primary-600 focus:ring-primary-500 dark:bg-gray-700 dark:border-dark-border"
                           />
-                          <label 
+                          <label
                             htmlFor={`module-${module.id}`}
                             className="ml-2 text-sm text-secondary-700 dark:text-dark-text cursor-pointer"
                           >
@@ -463,7 +463,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Modules without folders */}
                 {modules.filter(m => !m.folder_id).length > 0 && (
                   <div className="p-2">
@@ -471,7 +471,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                     <div className="pl-4 space-y-1">
                       {modules.filter(m => !m.folder_id).map(module => (
                         <div key={module.id} className="flex items-center">
-                          <input 
+                          <input
                             type="radio"
                             id={`module-${module.id}`}
                             name="module"
@@ -480,7 +480,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                             onChange={() => handleModuleSelection(module.id.toString())}
                             className="h-4 w-4 text-primary-600 focus:ring-primary-500 dark:bg-gray-700 dark:border-dark-border"
                           />
-                          <label 
+                          <label
                             htmlFor={`module-${module.id}`}
                             className="ml-2 text-sm text-secondary-700 dark:text-dark-text cursor-pointer"
                           >
@@ -526,7 +526,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
             )}
           </div>
         )}
-        
+
         <div className="mt-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-200 dark:border-blue-800">
           <div className="text-xs text-blue-700 dark:text-blue-300">
             <span className="font-semibold block mb-1">Why link an announcement?</span>
@@ -582,8 +582,8 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                   type="button"
                   onClick={() => setPreviewTab('write')}
                   className={`px-3 py-1 text-xs font-medium ${
-                    previewTab === 'write' 
-                      ? 'bg-primary-600 text-white' 
+                    previewTab === 'write'
+                      ? 'bg-primary-600 text-white'
                       : 'bg-white dark:bg-gray-700 text-secondary-700 dark:text-dark-text'
                   }`}
                 >
@@ -593,8 +593,8 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                   type="button"
                   onClick={() => setPreviewTab('preview')}
                   className={`px-3 py-1 text-xs font-medium ${
-                    previewTab === 'preview' 
-                      ? 'bg-primary-600 text-white' 
+                    previewTab === 'preview'
+                      ? 'bg-primary-600 text-white'
                       : 'bg-white dark:bg-gray-700 text-secondary-700 dark:text-dark-text'
                   }`}
                 >
@@ -602,7 +602,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
                 </button>
               </div>
             </div>
-            
+
             {previewTab === 'write' ? (
               <textarea
                 id="content"
@@ -616,10 +616,20 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
               />
             ) : (
               <div className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md shadow-sm bg-secondary-50 dark:bg-gray-800 h-48 overflow-y-auto">
-                <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text">
+                <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text break-words">
                   <ReactMarkdown
                     remarkPlugins={[remarkMath, remarkGfm]}
                     rehypePlugins={[rehypeKatex]}
+                    components={{
+                      a: ({ node, ...props }) => (
+                        <a
+                          {...props}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words overflow-wrap-anywhere"
+                        />
+                      ),
+                    }}
                   >
                     {content || 'Preview will appear here...'}
                   </ReactMarkdown>
@@ -630,7 +640,7 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
               Brief announcements work best. Supports basic Markdown formatting.
             </p>
           </div>
-          
+
           {/* Linked Entity Selection */}
           <div className="mb-4 border-t border-secondary-200 dark:border-gray-600 pt-4 mt-4">
             <label className="block text-sm font-medium text-secondary-700 dark:text-dark-text mb-1">
@@ -646,9 +656,9 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
               <option value="module">Link to a Module</option>
               <option value="assignment">Link to an Assignment</option>
             </select>
-            
+
             {renderEntitySelection()}
-            
+
             <p className="mt-1 text-xs text-secondary-500 dark:text-dark-muted">
               Link this announcement to a specific class, module, or assignment
             </p>
