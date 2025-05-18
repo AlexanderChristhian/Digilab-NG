@@ -13,6 +13,45 @@ import CreateAnnouncementButton from '../news/CreateAnnouncementButton';
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+// Utility function to determine deadline status and color
+const getDeadlineStatusClass = (deadline: string) => {
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  const diffTime = deadlineDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays <= 0) {
+    return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'; // Passed
+  } else if (diffDays <= 1) {
+    return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'; // Due in 1 day or less
+  } else if (diffDays <= 4) {
+    return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'; // Due in 4 days or less
+  } else {
+    return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'; // Due in more than 4 days
+  }
+};
+
+// Utility function to get remaining time text
+const getRemainingTimeText = (deadline: string): string => {
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  const diffTime = deadlineDate.getTime() - now.getTime();
+  
+  // If deadline has passed
+  if (diffTime <= 0) {
+    return "Passed";
+  }
+  
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  
+  if (diffDays > 0) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} left`;
+  } else {
+    return `${diffHours} hour${diffHours > 1 ? 's' : ''} left`;
+  }
+};
+
 interface Class {
   id: number;
   title: string;
@@ -329,8 +368,8 @@ const ClassDetail = () => {
                           <h3 className="text-lg font-medium text-secondary-900 dark:text-dark-text">
                             {assignment.title}
                           </h3>
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                            Due: {new Date(assignment.deadline).toLocaleDateString()}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDeadlineStatusClass(assignment.deadline)}`}>
+                            Due: {new Date(assignment.deadline).toLocaleDateString()} • {getRemainingTimeText(assignment.deadline)}
                           </span>
                         </div>
                         <div className="mt-1 text-sm text-secondary-600 dark:text-dark-muted line-clamp-2 prose-sm prose-headings:mt-0 prose-headings:mb-1 prose-p:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose dark:prose-invert break-words">

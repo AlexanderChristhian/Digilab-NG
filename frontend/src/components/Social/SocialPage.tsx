@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PostForm from './PostForm.tsx';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -27,6 +29,30 @@ interface Post {
   assignment_id?: number;
   profile_image?: string | null; // Add profile image field
 }
+
+// Helper function to strip markdown and limit length for previews
+const stripMarkdownForPreview = (markdown: string, maxLength: number = 150) => {
+  // Simple markdown stripping - remove common markdown syntax
+  let text = markdown
+    .replace(/#+\s/g, '') // headers
+    .replace(/\*\*(.+?)\*\*/g, '$1') // bold
+    .replace(/\*(.+?)\*/g, '$1') // italic
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // links
+    .replace(/!\[.+?\]\(.+?\)/g, '') // images
+    .replace(/`(.+?)`/g, '$1') // inline code
+    .replace(/```[\s\S]+?```/g, '') // code blocks
+    .replace(/>\s(.+)/g, '$1') // blockquotes
+    .replace(/- (.+)/g, '$1') // unordered lists
+    .replace(/\d+\.\s(.+)/g, '$1'); // ordered lists
+  
+  // Trim and limit length
+  text = text.trim();
+  if (text.length > maxLength) {
+    text = text.substring(0, maxLength) + '...';
+  }
+  
+  return text;
+};
 
 const SocialPage = () => {
   const { user } = useAuth();
@@ -313,10 +339,9 @@ const SocialPage = () => {
                   {/* Post content */}
                   <div className="px-4 py-3 bg-white dark:bg-gray-800">
                     <div className="mb-3">
-                      <p className="text-secondary-900 dark:text-dark-text whitespace-pre-line">
-                        {post.content.length > 200 
-                          ? `${post.content.substring(0, 200)}...` 
-                          : post.content}
+                      {/* Display stripped markdown preview in post list */}
+                      <p className="text-secondary-900 dark:text-dark-text">
+                        {stripMarkdownForPreview(post.content, 200)}
                       </p>
                     </div>
                     

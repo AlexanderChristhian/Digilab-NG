@@ -6,9 +6,35 @@ import { useAuth } from '../../context/AuthContext';
 import PostForm from './PostForm.tsx';
 import CommentList from './CommentList.tsx';
 import CommentForm from './CommentForm.tsx';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+// Helper function to strip markdown and limit length for previews
+const stripMarkdownForPreview = (markdown: string, maxLength: number = 150) => {
+  // Simple markdown stripping - remove common markdown syntax
+  let text = markdown
+    .replace(/#+\s/g, '') // headers
+    .replace(/\*\*(.+?)\*\*/g, '$1') // bold
+    .replace(/\*(.+?)\*/g, '$1') // italic
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // links
+    .replace(/!\[.+?\]\(.+?\)/g, '') // images
+    .replace(/`(.+?)`/g, '$1') // inline code
+    .replace(/```[\s\S]+?```/g, '') // code blocks
+    .replace(/>\s(.+)/g, '$1') // blockquotes
+    .replace(/- (.+)/g, '$1') // unordered lists
+    .replace(/\d+\.\s(.+)/g, '$1'); // ordered lists
+  
+  // Trim and limit length
+  text = text.trim();
+  if (text.length > maxLength) {
+    text = text.substring(0, maxLength) + '...';
+  }
+  
+  return text;
+};
 
 interface Post {
   id: number;
@@ -171,8 +197,9 @@ const PostCard = ({
         </div>
         
         <div className="mb-3">
-          <p className="text-secondary-900 dark:text-dark-text whitespace-pre-line">
-            {post.content}
+          {/* Display a simplified markdown preview */}
+          <p className="text-secondary-900 dark:text-dark-text line-clamp-3">
+            {stripMarkdownForPreview(post.content, 200)}
           </p>
         </div>
         

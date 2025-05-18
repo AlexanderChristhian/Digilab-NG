@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -323,8 +328,24 @@ const PostDetail = () => {
             </div>
           )}
           
-          <div className="text-secondary-900 dark:text-dark-text whitespace-pre-line mb-4">
-            {post.content}
+          {/* Use ReactMarkdown for rendering the post content */}
+          <div className="text-secondary-900 dark:text-dark-text mb-4 prose dark:prose-invert prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-headings:text-secondary-900 dark:prose-headings:text-dark-text max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                a: ({ node, ...props }) => (
+                  <a
+                    {...props}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 break-words"
+                  />
+                ),
+              }}
+            >
+              {post.content}
+            </ReactMarkdown>
           </div>
           
           {post.image_url && (

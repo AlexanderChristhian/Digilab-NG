@@ -507,13 +507,19 @@ const PostForm = ({
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <textarea
-            placeholder={isExpanded ? "What's on your mind?" : "Create a post..."}
+            placeholder={isExpanded ? "What's on your mind? (Supports Markdown)" : "Create a post..."}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onClick={() => setIsExpanded(true)}
             className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text"
             rows={isExpanded ? 4 : 1}
           />
+          {isExpanded && (
+            <div className="mt-1 text-xs text-secondary-500 dark:text-dark-muted">
+              <span className="font-medium">Pro tip:</span> You can use Markdown formatting - **bold**, *italic*, 
+              [links](url), # headings, and more!
+            </div>
+          )}
         </div>
         
         {isExpanded && (
