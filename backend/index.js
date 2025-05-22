@@ -14,6 +14,7 @@ const assignmentRoutes = require('./routes/assignments');
 const socialRoutes = require('./routes/social');
 const newsRoutes = require('./routes/news');
 const downloadRoutes = require('./routes/downloads');
+const uploadRoutes = require('./routes/uploads');
 
 // Import database
 const db = require('./db');
@@ -32,7 +33,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
 // Static uploads directory
@@ -47,6 +49,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/download', downloadRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 
 // Get all subjects (legacy)

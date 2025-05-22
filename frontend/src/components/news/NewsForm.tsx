@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import ReactMarkdown from 'react-markdown';
+import ImagePasteHandler from '../common/ImagePasteHandler';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
@@ -604,16 +605,68 @@ const NewsForm = ({ isEditing = false }: NewsFormProps) => {
             </div>
 
             {previewTab === 'write' ? (
-              <textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={6}
-                className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text markdown-editor-container"
-                placeholder="Write your announcement content using Markdown..."
-                maxLength={2000} // Set a reasonable limit for TEXT field
-                required
-              />
+              <ImagePasteHandler
+                onUploadStart={() => {
+                  // Insert placeholder at cursor position
+                  const textarea = document.getElementById('content') as HTMLTextAreaElement;
+                  const uploadingText = '![Uploading image...]()'
+                  
+                  if (textarea) {
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const newContent = content.substring(0, start) + uploadingText + content.substring(end);
+                    setContent(newContent);
+                    
+                    // Store cursor position for later
+                    textarea.dataset.uploadStart = start.toString();
+                  } else {
+                    setContent(content + '\n' + uploadingText);
+                  }
+                }}
+                onImageUpload={(imageUrl) => {
+                  // Replace placeholder with actual image markdown
+                  const textarea = document.getElementById('content') as HTMLTextAreaElement;
+                  const uploadingText = '![Uploading image...]()'
+                  const imageMarkdown = `![image](${imageUrl})`;
+                  
+                  if (textarea) {
+                    const uploadStart = parseInt(textarea.dataset.uploadStart || '0');
+                    const currentContent = content;
+                    const placeholderIndex = currentContent
+                      .indexOf(uploadingText, uploadStart > 0 ? uploadStart - uploadingText.length : 0);
+                    
+                    if (placeholderIndex !== -1) {
+                      const newContent = currentContent.substring(0, placeholderIndex) + 
+                        imageMarkdown + 
+                        currentContent.substring(placeholderIndex + uploadingText.length);
+                      setContent(newContent);
+                      
+                      // Reset cursor position after content update
+                      setTimeout(() => {
+                        textarea.focus();
+                        const newCursorPos = placeholderIndex + imageMarkdown.length;
+                        textarea.setSelectionRange(newCursorPos, newCursorPos);
+                      }, 0);
+                    } else {
+                      // Fallback: append at the end if placeholder not found
+                      setContent(content + '\n' + imageMarkdown);
+                    }
+                  } else {
+                    setContent(content + '\n' + imageMarkdown);
+                  }
+                }}
+              >
+                <textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={6}
+                  className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text markdown-editor-container"
+                  placeholder="Write your announcement content using Markdown. You can paste images directly into the editor."
+                  maxLength={2000} // Set a reasonable limit for TEXT field
+                  required
+                />
+              </ImagePasteHandler>
             ) : (
               <div className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md shadow-sm bg-secondary-50 dark:bg-gray-800 h-48 overflow-y-auto">
                 <div className="prose dark:prose-invert prose-primary max-w-none text-secondary-700 dark:text-dark-text break-words">

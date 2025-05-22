@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import ImagePasteHandler from '../common/ImagePasteHandler';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
@@ -384,18 +385,70 @@ const ModuleForm = ({ isEditing = false }: ModuleFormProps) => {
             <div className="p-4">
               {!previewMode ? (
                 <div className="mb-4">
-                  <label htmlFor="content" className="sr-only">
-                    Content
-                  </label>
-                  <textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={20}
-                    className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text font-mono"
-                    placeholder="Enter module content in Markdown format. LaTeX is supported using $...$ for inline math and $$...$$ for block math."
-                    required
-                  />
+                  <ImagePasteHandler
+                    onUploadStart={() => {
+                      // Insert placeholder at cursor position
+                      const textarea = document.getElementById('content') as HTMLTextAreaElement;
+                      const uploadingText = '![Uploading image...]()'
+                      
+                      if (textarea) {
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const newContent = content.substring(0, start) + uploadingText + content.substring(end);
+                        setContent(newContent);
+                        
+                        // Store cursor position for later
+                        textarea.dataset.uploadStart = start.toString();
+                      } else {
+                        setContent(content + '\n' + uploadingText);
+                      }
+                    }}
+                    onImageUpload={(imageUrl) => {
+                      // Replace placeholder with actual image markdown
+                      const textarea = document.getElementById('content') as HTMLTextAreaElement;
+                      const uploadingText = '![Uploading image...]()'
+                      const imageMarkdown = `![image](${imageUrl})`;
+                      
+                      if (textarea) {
+                        const uploadStart = parseInt(textarea.dataset.uploadStart || '0');
+                        const currentContent = content;
+                        const placeholderIndex = currentContent
+                          .indexOf(uploadingText, uploadStart > 0 ? uploadStart - uploadingText.length : 0);
+                        
+                        if (placeholderIndex !== -1) {
+                          const newContent = currentContent.substring(0, placeholderIndex) + 
+                            imageMarkdown + 
+                            currentContent.substring(placeholderIndex + uploadingText.length);
+                          setContent(newContent);
+                          
+                          // Reset cursor position after content update
+                          setTimeout(() => {
+                            textarea.focus();
+                            const newCursorPos = placeholderIndex + imageMarkdown.length;
+                            textarea.setSelectionRange(newCursorPos, newCursorPos);
+                          }, 0);
+                        } else {
+                          // Fallback: append at the end if placeholder not found
+                          setContent(content + '\n' + imageMarkdown);
+                        }
+                      } else {
+                        setContent(content + '\n' + imageMarkdown);
+                      }
+                    }}
+                  >
+                    <label htmlFor="content" className="sr-only">
+                      Content
+                    </label>
+                    <textarea
+                      id="content"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      rows={20}
+                      className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text font-mono"
+                      placeholder="Enter module content in Markdown format. LaTeX is supported using $...$ for inline math and $$...$$ for block math. You can paste images directly into the editor."
+                      required
+                    />
+                  </ImagePasteHandler>
                 </div>
               ) : (
                 <div className="prose dark:prose-invert prose-primary max-w-none min-h-[300px] p-4 border border-secondary-200 dark:border-dark-border rounded-md text-secondary-700 dark:text-dark-text break-words">
@@ -607,6 +660,7 @@ const ModuleForm = ({ isEditing = false }: ModuleFormProps) => {
               <ul className="text-sm text-secondary-700 dark:text-dark-muted space-y-1">
                 <li><code className="bg-secondary-100 dark:bg-gray-700 px-1 rounded"># Heading 1</code></li>
                 <li><code className="bg-secondary-100 dark:bg-gray-700 px-1 rounded">## Heading 2</code></li>
+                <li><code className="bg-secondary-100 dark:bg-gray-700 px-1 rounded">Paste images directly into editor</code></li>
                 <li><code className="bg-secondary-100 dark:bg-gray-700 px-1 rounded">**bold text**</code></li>
                 <li><code className="bg-secondary-100 dark:bg-gray-700 px-1 rounded">*italic text*</code></li>
                 <li><code className="bg-secondary-100 dark:bg-gray-700 px-1 rounded">[link text](url)</code></li>

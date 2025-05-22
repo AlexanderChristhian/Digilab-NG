@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import ImagePasteHandler from '../common/ImagePasteHandler';
 
 // API URL from environment
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -506,14 +507,67 @@ const PostForm = ({
       
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <textarea
-            placeholder={isExpanded ? "What's on your mind? (Supports Markdown)" : "Create a post..."}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onClick={() => setIsExpanded(true)}
-            className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text"
-            rows={isExpanded ? 4 : 1}
-          />
+          <ImagePasteHandler
+            onUploadStart={() => {
+              // Insert placeholder at cursor position
+              const textarea = document.getElementById('post-content') as HTMLTextAreaElement;
+              const uploadingText = '![Uploading image...]()'
+              
+              if (textarea) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const newContent = content.substring(0, start) + uploadingText + content.substring(end);
+                setContent(newContent);
+                
+                // Store cursor position for later
+                textarea.dataset.uploadStart = start.toString();
+              } else {
+                setContent(content + '\n' + uploadingText);
+              }
+            }}
+            onImageUpload={(imageUrl) => {
+              // Replace placeholder with actual image markdown
+              const textarea = document.getElementById('post-content') as HTMLTextAreaElement;
+              const uploadingText = '![Uploading image...]()'
+              const imageMarkdown = `![image](${imageUrl})`;
+              
+              if (textarea) {
+                const uploadStart = parseInt(textarea.dataset.uploadStart || '0');
+                const currentContent = content;
+                const placeholderIndex = currentContent
+                  .indexOf(uploadingText, uploadStart > 0 ? uploadStart - uploadingText.length : 0);
+                
+                if (placeholderIndex !== -1) {
+                  const newContent = currentContent.substring(0, placeholderIndex) + 
+                    imageMarkdown + 
+                    currentContent.substring(placeholderIndex + uploadingText.length);
+                  setContent(newContent);
+                  
+                  // Reset cursor position after content update
+                  setTimeout(() => {
+                    textarea.focus();
+                    const newCursorPos = placeholderIndex + imageMarkdown.length;
+                    textarea.setSelectionRange(newCursorPos, newCursorPos);
+                  }, 0);
+                } else {
+                  // Fallback: append at the end if placeholder not found
+                  setContent(content + '\n' + imageMarkdown);
+                }
+              } else {
+                setContent(content + '\n' + imageMarkdown);
+              }
+            }}
+          >
+            <textarea
+              id="post-content"
+              placeholder={isExpanded ? "What's on your mind? (Supports Markdown). You can paste images directly here!" : "Create a post..."}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onClick={() => setIsExpanded(true)}
+              className="w-full px-3 py-2 border border-secondary-300 dark:border-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-dark-text"
+              rows={isExpanded ? 4 : 1}
+            />
+          </ImagePasteHandler>
           {isExpanded && (
             <div className="mt-1 text-xs text-secondary-500 dark:text-dark-muted">
               <span className="font-medium">Pro tip:</span> You can use Markdown formatting - **bold**, *italic*, 
