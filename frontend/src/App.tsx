@@ -24,8 +24,9 @@ import Profile from './components/profile/Profile';
 import NewsList from './components/news/NewsList';
 import NewsDetail from './components/news/NewsDetail';
 import NewsForm from './components/news/NewsForm';
-import SocialPage from './components/social/SocialPage';
-import PostDetail from './components/social/PostDetail';
+import SocialPage from './components/Social/SocialPage';
+import PostDetail from './components/Social/PostDetail';
+import PostEditPage from './components/Social/PostEditPage'; // Corrected import casing
 
 function App() {
   // Disable scroll restoration from React Router
@@ -69,6 +70,7 @@ function App() {
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/social" element={<SocialPage />} />
                   <Route path="/social/:id" element={<PostDetail />} />
+                  <Route path="/social/:id/edit" element={<PostEditPage />} />
                 </Route>
 
                 {/* Aslab-only routes */}
